@@ -1,0 +1,15 @@
+# ===== 不提交：登录态 / 日志 / 临时文件（含敏感信息，切勿上传 GitHub） =====
+chrome_profiles/
+logs/
+labels/
+.idea/
+__pycache__/
+*.pyc
+
+# ===== 打包产物 / 系统垃圾文件 =====
+*.old
+*.log
+*.store
+*.binarypb
+.DS_Store
+Thumbs.db

@@ -1,0 +1,45 @@
+{
+  "chrome_path": "",
+  "dry_run": false,
+  "jitter_seconds": 0.0,
+  "reconnect_seconds": 30.0,
+  "gap_seconds": 2.5,
+  "accounts": [
+    {
+      "name": "小仙炖",
+      "enabled": true,
+      "cdp_port": 9222,
+      "interval": 300.0,
+      "room_url": "",
+      "send_all": true,
+      "messages": [
+        "欢迎大家来到直播间～",
+        "有问题可以直接留言咨询哦～",
+        "感谢大家的关注和支持～"
+      ]
+    },
+    {
+      "name": "超能",
+      "enabled": true,
+      "cdp_port": 9223,
+      "interval": 20.0,
+      "room_url": "",
+      "send_all": true,
+      "messages": [
+        "✅自然堂官方旗舰店直接发蓝v认证！一定正品❗️ 放心买哈 保质期三年 生产日期近三个月的新鲜日期💕💕💕"
+      ]
+    },
+    {
+      "name": "视频号C",
+      "enabled": false,
+      "cdp_port": 9224,
+      "interval": 600.0,
+      "room_url": "",
+      "send_all": true,
+      "messages": [
+        "晚上好，欢迎来到直播间～",
+        "感谢大家来到直播间～"
+      ]
+    }
+  ]
+}
