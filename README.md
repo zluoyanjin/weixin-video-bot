@@ -48,6 +48,7 @@
 ├─ 自检.bat          可选：无真实账号也能验证程序链路
 ├─ 体检.bat          可选：真实账号体检，只连接不发送
 ├─ 打包成exe.bat     开发用，客户不需要
+├─ 安装环境.sh 等     ★ macOS / Linux 请用同名 .sh 脚本（功能与 .bat 一致，详见第十节）
 │
 ├─ app/              程序本体（无需修改）
 ├─ config/
@@ -136,7 +137,47 @@
 
 ---
 
-## 九、技术栈
+## 十、macOS / Linux 使用
+
+本工具同样支持 macOS 和 Linux —— `.bat` 是 Windows 专用，请用对应的 `.sh` 脚本。
+
+**一次性准备**
+
+```bash
+bash 安装环境.sh          # 安装 Playwright（macOS 若缺系统依赖可补：python3 -m playwright install-deps）
+```
+
+> 若直接双击 `.sh` 没反应，先在终端 `cd` 到本文件夹，用 `bash 安装环境.sh` 这种方式运行；
+> 想以后双击运行，可执行 `chmod +x *.sh` 一次。
+
+**日常使用（与 Windows 两步法一致）**
+
+```bash
+bash 配置账号.sh          # 打开图形窗口：填账号/文案/端口
+# 在窗口里点「启动 Chrome」登录视频号、进直播间
+# 再点「启动机器人」（或另开终端执行 bash 启动机器人.sh）
+```
+
+**等价脚本一览**
+
+| Windows | macOS / Linux | 作用 |
+|---|---|---|
+| 安装环境.bat | 安装环境.sh | 装 Playwright |
+| 配置账号.bat | 配置账号.sh | 开配置图形窗口 |
+| 启动Chrome.bat | 启动Chrome.sh | 启各账号 Chrome |
+| 启动机器人.bat | 启动机器人.sh | 启动自动发言 |
+| 自检.bat | 自检.sh | 无账号自检 |
+| 体检.bat | 体检.sh | 真实账号体检（不发送） |
+
+**macOS 特别注意**
+
+- `app/chrome.py` 已内置 Mac / Chrome 路径探测；若你的 Chrome 装在非标准位置，可在 `config/accounts.json` 顶层加 `"chrome_path": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"`。
+- 若 `配置账号.sh` 报 `No module named '_tkinter'`：macOS 用 python.org 安装包自带 Tk；brew 版执行 `brew install python-tk`；Linux 执行 `sudo apt install python3-tk`。
+- 登录态同样保存在 `chrome_profiles/`，**勿删**。
+
+---
+
+## 十一、技术栈
 
 - Python 3.10+
 - [Playwright](https://playwright.dev/python/)（浏览器自动化）

@@ -11,6 +11,7 @@ Chrome 管理：自动查找 Chrome -> 为每个账号创建独立 profile -> �
 from __future__ import annotations
 
 import os
+import shutil
 import socket
 import subprocess
 import sys
@@ -45,14 +46,36 @@ def find_chrome(custom_path: str = ""):
         return custom_path
 
     env = os.environ
-    candidates = [
-        _from_registry(),
-        os.path.join(env.get("ProgramFiles", ""), "Google", "Chrome", "Application", "chrome.exe"),
-        os.path.join(env.get("ProgramFiles(x86)", ""), "Google", "Chrome", "Application", "chrome.exe"),
-        os.path.join(env.get("LOCALAPPDATA", ""), "Google", "Chrome", "Application", "chrome.exe"),
-        os.path.join(env.get("ProgramFiles", ""), "Microsoft", "Edge", "Application", "msedge.exe"),
-        os.path.join(env.get("ProgramFiles(x86)", ""), "Microsoft", "Edge", "Application", "msedge.exe"),
-    ]
+    candidates = []
+    if sys.platform.startswith("win"):
+        # Windows：注册表 + 常见安装目录
+        candidates += [
+            _from_registry(),
+            os.path.join(env.get("ProgramFiles", ""), "Google", "Chrome", "Application", "chrome.exe"),
+            os.path.join(env.get("ProgramFiles(x86)", ""), "Google", "Chrome", "Application", "chrome.exe"),
+            os.path.join(env.get("LOCALAPPDATA", ""), "Google", "Chrome", "Application", "chrome.exe"),
+            os.path.join(env.get("ProgramFiles", ""), "Microsoft", "Edge", "Application", "msedge.exe"),
+            os.path.join(env.get("ProgramFiles(x86)", ""), "Microsoft", "Edge", "Application", "msedge.exe"),
+        ]
+    else:
+        # macOS / Linux：.app 与常见安装路径
+        home = os.path.expanduser("~")
+        candidates += [
+            "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+            "/Applications/Google Chrome Canary.app/Contents/MacOS/Google Chrome Canary",
+            "/Applications/Chromium.app/Contents/MacOS/Chromium",
+            os.path.join(home, "Applications", "Google Chrome.app", "Contents", "MacOS", "Google Chrome"),
+            "/usr/bin/google-chrome",
+            "/usr/bin/google-chrome-stable",
+            "/usr/bin/chromium",
+            "/usr/bin/chromium-browser",
+            "/snap/bin/chromium",
+        ]
+        # PATH 上能直接找到的命令
+        for _cmd in ("google-chrome", "google-chrome-stable", "chromium", "chromium-browser", "chrome"):
+            _p = shutil.which(_cmd)
+            if _p:
+                candidates.append(_p)
     for c in candidates:
         if c and os.path.exists(c):
             return c
@@ -99,7 +122,7 @@ def make_label_html(name: str, port: int, index: int) -> str:
    <h1>{name}</h1>
    <div class="port">CDP 端口：{port}</div>
    <div class="tip">请在这个窗口里登录 <b>{name}</b> 的视频号，并进入要发言的直播间。<br>
-       登录完成后点下面按钮进入视频号页面，再双击「启动机器人.bat」。</div>
+       登录完成后点下面按钮进入视频号页面，再点配置窗口里的「启动机器人」按钮（或运行对应的启动脚本）。</div>
    <button onclick="location.href='https://channels.weixin.qq.com/'">&#9654; 进入视频号页面</button>
  </div>
 </body>
@@ -114,6 +137,16 @@ def label_path(name: str, port: int, index: int) -> str:
     with open(p, "w", encoding="utf-8") as f:
         f.write(make_label_html(name, port, index))
     return p
+
+
+def _file_uri(path: str) -> str:
+    """把本地路径转成浏览器可打开的 file:// URI（跨平台，自动处理空格）。"""
+    try:
+        from pathlib import Path
+        return Path(path).as_uri()
+    except Exception:
+        # 兜底：Windows 用 file:/// 前缀并统一分隔符
+        return "file:///" + path.replace("\\", "/")
 
 
 # ---------------------------------------------------------------- 启动
@@ -142,7 +175,7 @@ def launch_one(chrome_path: str, account: dict, index: int, dry: bool = False):
     else:
         # 先打开标识页，让用户一眼看出这个窗口对应哪个账号/端口，
         # 登录完成后再点页面上的按钮进入视频号。
-        args.append("file:///" + label_path(name, port, index).replace("\\", "/"))
+        args.append(_file_uri(label_path(name, port, index)))
 
     if dry:
         print(f"[{name}] 计划启动 -> 端口 {port} / 目录 {profile}", flush=True)
@@ -196,7 +229,7 @@ def launch_all(cfg: dict, dry: bool = False):
     print("=" * 58, flush=True)
     print(flush=True)
     if not dry:
-        print("每个窗口登录对应视频号 -> 点页面按钮进视频号 -> 运行「启动机器人.bat」", flush=True)
+        print("每个窗口登录对应视频号 -> 点页面按钮进视频号 -> 运行「启动机器人」（配置窗口按钮或启动脚本）", flush=True)
     return 0
 
 
